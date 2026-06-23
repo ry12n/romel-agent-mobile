@@ -4,26 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ROMEL // Mobile Command Gate</title>
-    <!-- Brand Typography -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            /* Palette - ROMEL Brand Reference */
-            --bg: #080C12;
-            --surface: #0D1117;
-            --panel-raised: #131922;
-            --accent: #3D8EF0;
-            --accent-dim: #1E4A8A;
-            --accent-faint: #0D2040;
-            --text-primary: #F0EEE9;
-            --text-secondary: #9BA3AF;
-            --text-muted: #4B5563;
-            --border: #161D28;
-            --border-mid: #1F2937;
-            --border-bright: #2D3B4E;
+            /* Stitch Project Theme Aligned Palette */
+            --bg: #10141a;
+            --surface: #0a0e14;
+            --surface-container: #1c2026;
+            --surface-container-high: #262a31;
+            --surface-bright: #353940;
+            --accent: #3d8ef0;
+            --accent-dim: #004787;
+            --accent-faint: #001c3b;
+            --text-primary: #dfe2eb;
+            --text-secondary: #c1c6d4;
+            --text-muted: #8b919e;
+            --border: #414752;
+            --border-faint: #1f2937;
             
             --font-sans: 'Inter', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
@@ -42,8 +43,8 @@
             background-color: var(--bg);
             color: var(--text-primary);
             font-family: var(--font-sans);
-            font-size: 13px;
-            line-height: 1.4;
+            font-size: 14px;
+            line-height: 1.5;
             height: 100vh;
             width: 100vw;
             overflow: hidden;
@@ -52,15 +53,14 @@
             position: relative;
         }
 
-        /* Utility Monospace Elements */
         .mono {
             font-family: var(--font-mono);
-            font-size: 10px;
-            letter-spacing: 0.12em;
+            font-size: 11px;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
         }
 
-        /* SCREEN VIEWS STACK */
+        /* VIEW PORT VIEWS */
         .view-pane {
             display: none;
             flex-direction: column;
@@ -70,6 +70,7 @@
             top: 0;
             left: 0;
             overflow: hidden;
+            background-color: var(--bg);
         }
 
         .view-pane.active-view {
@@ -77,44 +78,46 @@
             position: relative;
         }
 
-        /* 1. AUTH SCREEN (Verification Gate) */
+        /* 1. AUTH SCREEN (Stitch "ROMEL Verification Gate" Match) */
         #auth-screen {
-            background-color: var(--bg);
             justify-content: space-between;
-            padding: 24px;
+            padding: 24px 16px;
         }
 
-        .auth-header {
-            margin-top: 40px;
-            border-left: 2px solid var(--accent);
+        .auth-top {
+            margin-top: 48px;
+            border-left: 3px solid var(--accent);
             padding-left: 16px;
         }
 
-        .auth-title {
-            font-family: var(--font-sans);
-            font-weight: 300;
-            font-size: 22px;
-            letter-spacing: 0.08em;
-            color: var(--text-primary);
+        .auth-label {
+            color: var(--accent);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            margin-bottom: 6px;
         }
 
-        .auth-subtitle {
-            margin-top: 4px;
-            color: var(--text-secondary);
+        .auth-headline {
+            font-family: var(--font-sans);
+            font-weight: 700;
+            font-size: 24px;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
         }
 
         .auth-keypad-container {
             width: 100%;
-            max-width: 320px;
+            max-width: 328px;
             margin: 0 auto;
         }
 
         .pin-display-container {
-            border: 1px solid var(--border-mid);
+            border: 1px solid var(--border);
             background-color: var(--surface);
             padding: 16px;
             margin-bottom: 24px;
-            text-align: center;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -122,6 +125,9 @@
 
         .pin-label {
             color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
         }
 
         .pin-dots {
@@ -130,17 +136,16 @@
         }
 
         .pin-dot {
-            width: 10px;
-            height: 10px;
-            border: 1px solid var(--border-bright);
+            width: 12px;
+            height: 12px;
+            border: 1px solid var(--border);
             background-color: transparent;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
         }
 
         .pin-dot.filled {
             background-color: var(--accent);
             border-color: var(--accent);
-            box-shadow: 0 0 8px var(--accent);
         }
 
         .grid-keypad {
@@ -150,19 +155,16 @@
         }
 
         .keypad-btn {
-            background-color: var(--surface);
-            border: 1px solid var(--border-mid);
+            background-color: var(--surface-container);
+            border: 1px solid var(--border);
             color: var(--text-primary);
-            padding: 18px 0;
+            padding: 20px 0;
             font-family: var(--font-mono);
             font-size: 18px;
             font-weight: 500;
             cursor: pointer;
             outline: none;
             transition: all 0.1s ease;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
         .keypad-btn:active {
@@ -174,9 +176,12 @@
         .auth-footer {
             text-align: center;
             color: var(--text-muted);
-            font-size: 9px;
-            letter-spacing: 0.1em;
-            margin-bottom: 20px;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            margin-bottom: 16px;
+            border-top: 1px solid var(--border-faint);
+            padding-top: 16px;
         }
 
         /* GLOBAL APP HEADER */
@@ -210,16 +215,17 @@
 
         .system-id {
             color: var(--text-primary);
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 11px;
         }
 
         /* 2. MAIN CONSOLE VIEW */
-        /* WAVEFORM AREA */
+        /* WAVEFORM CANVAS SECTION */
         .waveform-section {
-            background-color: #040609;
+            background-color: var(--surface);
             border-bottom: 1px solid var(--border);
             position: relative;
-            height: 160px;
+            height: 180px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -246,16 +252,19 @@
         }
 
         .active-agent-banner {
-            background-color: rgba(13, 32, 64, 0.7);
+            background-color: var(--accent-faint);
             border: 1px solid var(--accent);
             padding: 4px 8px;
             color: var(--accent);
-            font-weight: 500;
+            font-weight: 700;
+            font-size: 10px;
         }
 
         .telemetry-ticker {
             color: var(--text-muted);
             text-align: right;
+            font-size: 10px;
+            line-height: 1.3;
         }
 
         .waveform-footer {
@@ -269,13 +278,14 @@
 
         .wave-freq-readout {
             color: var(--text-secondary);
+            font-size: 10px;
         }
 
-        /* AGENT DRAWER SYSTEM */
+        /* AGENT DRAWER SELECTOR */
         .agent-drawer {
-            background-color: var(--surface);
+            background-color: var(--bg);
             border-bottom: 1px solid var(--border);
-            padding: 12px 16px;
+            padding: 14px 16px;
             flex-shrink: 0;
         }
 
@@ -283,17 +293,21 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .drawer-title {
             color: var(--text-muted);
+            font-weight: 700;
+            font-size: 10px;
         }
 
         .action-specs {
             color: var(--accent);
             cursor: pointer;
-            text-decoration: underline;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 10px;
         }
 
         .agent-scroll-grid {
@@ -301,24 +315,24 @@
             gap: 8px;
             overflow-x: auto;
             scroll-snap-type: x mandatory;
-            padding-bottom: 4px;
+            padding-bottom: 6px;
         }
 
         .agent-scroll-grid::-webkit-scrollbar {
-            height: 3px;
+            height: 2px;
         }
         .agent-scroll-grid::-webkit-scrollbar-thumb {
-            background-color: var(--border-mid);
+            background-color: var(--border);
         }
 
         .agent-node-card {
             flex: 0 0 calc(33.33% - 6px);
             scroll-snap-align: start;
-            background-color: var(--panel-raised);
-            border: 1px solid var(--border-mid);
+            background-color: var(--surface-container);
+            border: 1px solid var(--border-faint);
             padding: 10px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -331,38 +345,38 @@
         }
 
         .agent-node-card.planned {
-            border-color: var(--border);
             opacity: 0.5;
         }
 
         .agent-name {
             color: var(--text-primary);
-            font-weight: 500;
+            font-weight: 700;
             font-size: 11px;
+            letter-spacing: -0.01em;
         }
 
         .agent-role-label {
-            color: var(--text-secondary);
-            font-size: 8px;
+            color: var(--text-muted);
+            font-size: 9px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-top: 2px;
         }
 
         .agent-status-label {
-            font-size: 8px;
-            font-weight: 600;
+            font-size: 9px;
+            font-weight: 700;
             margin-top: 4px;
         }
 
         .status-idle { color: var(--text-muted); }
         .status-active { color: var(--accent); }
-        .status-planned { color: var(--text-muted); }
 
-        /* SCROLLING TERMINAL LOGS */
+        /* SCROLLING CONSOLE TERMINAL LOGS */
         .terminal-log-section {
             flex: 1;
-            background-color: #05070a;
+            background-color: var(--surface);
             padding: 16px;
             overflow-y: auto;
             display: flex;
@@ -375,7 +389,7 @@
         .log-line {
             display: flex;
             gap: 8px;
-            line-height: 1.3;
+            line-height: 1.4;
         }
 
         .log-timestamp {
@@ -385,7 +399,7 @@
 
         .log-prefix {
             color: var(--accent);
-            font-weight: 600;
+            font-weight: 700;
             flex-shrink: 0;
         }
 
@@ -395,13 +409,13 @@
         }
 
         .log-message.system {
-            color: var(--text-secondary);
+            color: var(--text-muted);
             font-style: italic;
         }
 
-        /* COMMAND PROMPT AREA */
+        /* COMMAND BAR */
         .command-input-container {
-            background-color: var(--surface);
+            background-color: var(--bg);
             border-top: 1px solid var(--border);
             padding: 12px 16px calc(12px + var(--safe-bottom));
             display: flex;
@@ -412,19 +426,18 @@
 
         .command-field {
             flex: 1;
-            background-color: var(--bg);
-            border: 1px solid var(--border-mid);
+            background-color: var(--surface);
+            border: 1px solid var(--border);
             color: var(--text-primary);
             font-family: var(--font-mono);
             font-size: 13px;
             padding: 12px 14px;
             outline: none;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
         }
 
         .command-field:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 6px var(--accent-faint);
         }
 
         .command-send-btn {
@@ -434,17 +447,17 @@
             padding: 12px 18px;
             font-family: var(--font-mono);
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
         }
 
         .command-send-btn:active {
             background-color: var(--accent);
-            color: var(--bg);
+            color: var(--surface);
         }
 
-        /* BOTTOM NAVIGATION BAR */
+        /* TAB BAR NAVIGATION */
         .global-tab-nav {
             background-color: var(--surface);
             border-top: 1px solid var(--border);
@@ -459,12 +472,12 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: var(--text-secondary);
+            color: var(--text-muted);
             cursor: pointer;
-            font-size: 9px;
-            font-weight: 500;
+            font-size: 10px;
+            font-weight: 700;
             gap: 4px;
-            border-right: 1px solid var(--border);
+            border-right: 1px solid var(--border-faint);
         }
 
         .tab-nav-item:last-child {
@@ -478,21 +491,20 @@
 
         .tab-icon {
             font-family: var(--font-mono);
-            font-size: 12px;
-            font-weight: bold;
+            font-size: 13px;
         }
 
-        /* 3. AGENT PROFILE VIEW */
+        /* 3. AGENT PROFILE VIEW (Stitch "ROMEL // NODE_SPEC_REEVE" Match) */
         .profile-container {
             flex: 1;
-            padding: 20px;
+            padding: 16px;
             overflow-y: auto;
             background-color: var(--bg);
         }
 
         .profile-card-hero {
-            border: 1px solid var(--border-mid);
-            background-color: var(--surface);
+            border: 1px solid var(--border);
+            background-color: var(--surface-container);
             padding: 24px;
             margin-bottom: 20px;
             position: relative;
@@ -512,12 +524,12 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .profile-agent-title h2 {
             font-family: var(--font-sans);
-            font-weight: 300;
+            font-weight: 700;
             font-size: 24px;
             letter-spacing: 0.08em;
             color: var(--text-primary);
@@ -526,8 +538,10 @@
         .profile-agent-badge {
             background-color: var(--accent-faint);
             border: 1px solid var(--accent);
-            padding: 3px 8px;
+            padding: 4px 10px;
             color: var(--accent);
+            font-weight: 700;
+            font-size: 10px;
         }
 
         .profile-detail-grid {
@@ -538,29 +552,32 @@
         }
 
         .detail-cell {
-            border-bottom: 1px solid var(--border-mid);
+            border-bottom: 1px solid var(--border-faint);
             padding-bottom: 8px;
         }
 
         .detail-cell-label {
             color: var(--text-muted);
             margin-bottom: 4px;
+            font-weight: 700;
         }
 
         .detail-cell-value {
             color: var(--text-primary);
             font-weight: 500;
+            font-family: var(--font-mono);
         }
 
         .profile-description-box {
-            background-color: var(--bg);
-            border: 1px solid var(--border);
+            background-color: var(--surface);
+            border: 1px solid var(--border-faint);
             padding: 16px;
             margin-bottom: 24px;
         }
 
         .profile-description-box p {
             color: var(--text-secondary);
+            font-size: 13px;
             line-height: 1.5;
         }
 
@@ -574,22 +591,22 @@
             text-align: center;
             font-family: var(--font-mono);
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            text-decoration: none;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             margin-bottom: 12px;
+            text-transform: uppercase;
         }
 
         .profile-action-btn:active {
             background-color: var(--accent);
-            color: var(--bg);
+            color: var(--surface);
         }
 
-        /* 4. CLUSTER SETTINGS VIEW */
+        /* 4. SETTINGS VIEW (Stitch "ROMEL // CLUSTER_SETTINGS" Match) */
         .settings-container {
             flex: 1;
-            padding: 20px;
+            padding: 16px;
             overflow-y: auto;
         }
 
@@ -599,58 +616,56 @@
 
         .settings-title {
             font-family: var(--font-sans);
-            font-weight: 300;
+            font-weight: 700;
             font-size: 20px;
-            letter-spacing: 0.08em;
+            letter-spacing: -0.01em;
             color: var(--text-primary);
         }
 
         .settings-section-card {
-            border: 1px solid var(--border-mid);
-            background-color: var(--surface);
+            border: 1px solid var(--border);
+            background-color: var(--surface-container);
             padding: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .settings-section-title {
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-            font-weight: 600;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 6px;
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 11px;
+            border-bottom: 1px solid var(--border-faint);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .setting-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .setting-row:last-child {
-            border-bottom: none;
+            padding: 8px 0;
         }
 
         .setting-row-label {
-            font-weight: 500;
+            font-weight: 600;
+            color: var(--text-primary);
         }
 
         .setting-row-desc {
-            font-size: 10px;
+            font-size: 11px;
             color: var(--text-muted);
-            margin-top: 2px;
+            margin-top: 4px;
         }
 
         .setting-toggle-btn {
             background: none;
-            border: 1px solid var(--border-bright);
+            border: 1px solid var(--border);
             color: var(--text-primary);
-            padding: 6px 14px;
+            padding: 8px 16px;
             font-family: var(--font-mono);
-            font-size: 10px;
+            font-size: 11px;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
         }
 
         .setting-toggle-btn.on {
@@ -662,16 +677,16 @@
 </head>
 <body>
 
-    <!-- 1. PRE-AUTH VERIFICATION GATE VIEW -->
+    <!-- 1. AUTH SCREEN (Stitch "ROMEL Verification Gate" Match) -->
     <div id="auth-screen" class="view-pane active-view">
-        <div class="auth-header">
-            <div class="mono auth-subtitle">ROMEL // GATEWAY ACCESS</div>
-            <h1 class="auth-title">MOBILE COMMAND PORT</h1>
+        <div class="auth-top">
+            <div class="auth-label">ROMEL // CLUSTER ACCESS PROTOCOL</div>
+            <h1 class="auth-headline">VERIFICATION REQUIRED</h1>
         </div>
 
         <div class="auth-keypad-container">
             <div class="pin-display-container">
-                <span class="mono pin-label">ENTER ACCESS TOKEN</span>
+                <span class="pin-label">ENTER ACCESS TOKEN</span>
                 <div class="pin-dots" id="pin-dots">
                     <div class="pin-dot"></div>
                     <div class="pin-dot"></div>
@@ -696,8 +711,8 @@
             </div>
         </div>
 
-        <div class="auth-footer mono">
-            ROMEL CO. CLASSIFIED INFRASTRUCTURE · AUTH_REQUIRED
+        <div class="auth-footer">
+            CLASSIFIED INTERNAL NODE. UNAUTHORIZED ACCESS LOGED ENCRYPTION_SHA256
         </div>
     </div>
 
@@ -711,47 +726,47 @@
             <div class="mono" style="color: var(--text-muted);">SECURE_LINK // ON</div>
         </header>
 
-        <!-- ACTIVE SIGNAL CANVAS (CONCEPT 3 HERO WAVEFORM) -->
+        <!-- TELEMETRY CANVAS -->
         <section class="waveform-section">
             <canvas id="wave-canvas"></canvas>
             
             <div class="waveform-header">
-                <div class="mono active-agent-banner" id="wave-agent-banner">NODE // REEVE</div>
-                <div class="mono telemetry-ticker">
+                <div class="active-agent-banner mono" id="wave-agent-banner">NODE // REEVE</div>
+                <div class="telemetry-ticker mono">
                     SIGNAL: SECURE<br>
                     SENS: STABLE
                 </div>
             </div>
 
             <div class="waveform-footer">
-                <div class="mono wave-freq-readout" id="freq-spec">FREQ // 23.40 GHz</div>
+                <div class="wave-freq-readout mono" id="freq-spec">FREQ // 23.40 GHz</div>
                 <div class="mono" style="color: var(--text-muted);">VOLTAGE: 1.42V</div>
             </div>
         </section>
 
-        <!-- AGENT DRAWER SYSTEM -->
+        <!-- AGENT NODES DRAWER -->
         <section class="agent-drawer">
             <div class="drawer-header">
-                <div class="mono drawer-title">SELECT ACTIVE CLUSTER NODE</div>
-                <div class="mono action-specs" onclick="switchToView('profile-view')">DETAILS &rarr;</div>
+                <div class="drawer-title mono">SELECT ACTIVE CLUSTER NODE</div>
+                <div class="action-specs mono" onclick="switchToView('profile-view')">DETAILS &rarr;</div>
             </div>
             <div class="agent-scroll-grid" id="agent-grid">
                 <!-- Dynamically populated roster -->
             </div>
         </section>
 
-        <!-- TERMINAL COMMUNICATIONS LOG -->
+        <!-- COMMUNICATIONS TERMINAL LOGS -->
         <section class="terminal-log-section" id="terminal-logs">
             <!-- Dyn log entries -->
         </section>
 
-        <!-- COMMAND INPUT PANEL -->
+        <!-- CMD INPUT -->
         <footer class="command-input-container">
             <input type="text" class="command-field" id="cmd-input" placeholder="ENTER PROTOCOL..." autocomplete="off" onkeydown="if(event.key === 'Enter') dispatchCommand()">
             <button class="command-send-btn mono" onclick="dispatchCommand()">SEND</button>
         </footer>
 
-        <!-- BOTTOM NAV TAB -->
+        <!-- NAVIGATION -->
         <nav class="global-tab-nav">
             <div class="tab-nav-item active" onclick="switchToView('console-view')">
                 <span class="tab-icon">[_]</span>
@@ -785,25 +800,25 @@
                         <h2 id="prof-name">REEVE</h2>
                         <div class="mono" id="prof-role-sub" style="color: var(--text-secondary); margin-top: 4px;">Security / access</div>
                     </div>
-                    <span class="mono profile-agent-badge" id="prof-status-badge">NODE LIVE</span>
+                    <span class="profile-agent-badge mono" id="prof-status-badge">NODE LIVE</span>
                 </div>
 
                 <div class="profile-detail-grid">
                     <div class="detail-cell">
-                        <div class="mono detail-cell-label">NODE HOST</div>
-                        <div class="mono detail-cell-value" id="prof-host">LOCAL_CLUSTER</div>
+                        <div class="detail-cell-label mono">NODE HOST</div>
+                        <div class="detail-cell-value" id="prof-host">LOCAL_CLUSTER</div>
                     </div>
                     <div class="detail-cell">
-                        <div class="mono detail-cell-value">SECURE_SHA256</div>
-                        <div class="mono detail-cell-value" id="prof-token">A74E9...</div>
+                        <div class="detail-cell-label mono">SECURE_SHA256</div>
+                        <div class="detail-cell-value" id="prof-token">A74E9...</div>
                     </div>
                     <div class="detail-cell">
-                        <div class="mono detail-cell-label">LATENCY</div>
-                        <div class="mono detail-cell-value">12ms (FAST)</div>
+                        <div class="detail-cell-label mono">LATENCY</div>
+                        <div class="detail-cell-value">12ms (FAST)</div>
                     </div>
                     <div class="detail-cell">
-                        <div class="mono detail-cell-label">CLEARANCE LEVEL</div>
-                        <div class="mono detail-cell-value" id="prof-clearance">V5 SECRET</div>
+                        <div class="detail-cell-label mono">CLEARANCE LEVEL</div>
+                        <div class="detail-cell-value" id="prof-clearance">V5 SECRET</div>
                     </div>
                 </div>
 
@@ -813,11 +828,11 @@
                 </div>
 
                 <button class="profile-action-btn" onclick="testHandshake()">TRIGGER HANDSHAKE TEST</button>
-                <button class="profile-action-btn" onclick="disengageNode()" style="border-color: var(--text-muted); color: var(--text-muted); background: none;">DISENGAGE NODE LINK</button>
+                <button class="profile-action-btn" onclick="disengageNode()" style="border-color: var(--border); color: var(--text-muted); background: none;">DISENGAGE NODE LINK</button>
             </div>
         </section>
 
-        <!-- BOTTOM NAV TAB -->
+        <!-- NAVIGATION -->
         <nav class="global-tab-nav">
             <div class="tab-nav-item" onclick="switchToView('console-view')">
                 <span class="tab-icon">[_]</span>
@@ -850,7 +865,7 @@
             </div>
 
             <div class="settings-section-card">
-                <div class="mono settings-section-title">HAPTIC AUDIO SYNTESIZER</div>
+                <div class="settings-section-title mono">HAPTIC AUDIO SYNTHESIZER</div>
                 <div class="setting-row">
                     <div>
                         <div class="setting-row-label">System Clicks & Sweeps</div>
@@ -861,7 +876,7 @@
             </div>
 
             <div class="settings-section-card">
-                <div class="mono settings-section-title">WAVEFORM MODULATION</div>
+                <div class="settings-section-title mono">WAVEFORM MODULATION</div>
                 <div class="setting-row">
                     <div>
                         <div class="setting-row-label">High-fidelity Canvas Rendering</div>
@@ -872,7 +887,7 @@
             </div>
 
             <div class="settings-section-card">
-                <div class="mono settings-section-title">SECURITY GATEWAY</div>
+                <div class="settings-section-title mono">SECURITY GATEWAY</div>
                 <div class="setting-row">
                     <div>
                         <div class="setting-row-label">Lock Portal on Close</div>
@@ -883,7 +898,7 @@
             </div>
         </section>
 
-        <!-- BOTTOM NAV TAB -->
+        <!-- NAVIGATION -->
         <nav class="global-tab-nav">
             <div class="tab-nav-item" onclick="switchToView('console-view')">
                 <span class="tab-icon">[_]</span>
@@ -1067,7 +1082,7 @@
                         <div class="agent-name">${agent.name.toUpperCase()}</div>
                         <div class="agent-role-label">${agent.role}</div>
                     </div>
-                    <div class="agent-status-label mono ${agent.state === 'live' ? 'status-active' : 'status-planned'}">
+                    <div class="agent-status-label mono ${agent.state === 'live' ? 'status-active' : 'status-idle'}">
                         ${agent.state === 'live' ? 'ACTIVE' : 'PLANNED'}
                     </div>
                 `;
