@@ -60,26 +60,28 @@
             text-transform: uppercase;
         }
 
-        /* 1. AUTH SCREEN (Verification Gate) */
-        #auth-screen {
-            position: fixed;
+        /* SCREEN VIEWS STACK */
+        .view-pane {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg);
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 24px;
-            transition: opacity 0.4s ease, visibility 0.4s ease;
+            overflow: hidden;
         }
 
-        #auth-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
+        .view-pane.active-view {
+            display: flex;
+            position: relative;
+        }
+
+        /* 1. AUTH SCREEN (Verification Gate) */
+        #auth-screen {
+            background-color: var(--bg);
+            justify-content: space-between;
+            padding: 24px;
         }
 
         .auth-header {
@@ -151,7 +153,7 @@
             background-color: var(--surface);
             border: 1px solid var(--border-mid);
             color: var(--text-primary);
-            padding: 20px 0;
+            padding: 18px 0;
             font-family: var(--font-mono);
             font-size: 18px;
             font-weight: 500;
@@ -177,7 +179,7 @@
             margin-bottom: 20px;
         }
 
-        /* 2. MAIN CONSOLE INTERFACE */
+        /* GLOBAL APP HEADER */
         .app-header {
             background-color: var(--surface);
             border-bottom: 1px solid var(--border);
@@ -185,6 +187,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .system-status {
@@ -210,17 +213,19 @@
             font-weight: 600;
         }
 
+        /* 2. MAIN CONSOLE VIEW */
         /* WAVEFORM AREA */
         .waveform-section {
             background-color: #040609;
             border-bottom: 1px solid var(--border);
             position: relative;
-            height: 180px;
+            height: 160px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             padding: 12px;
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         #wave-canvas {
@@ -266,16 +271,29 @@
             color: var(--text-secondary);
         }
 
-        /* AGENT GRID SELECTION */
+        /* AGENT DRAWER SYSTEM */
         .agent-drawer {
             background-color: var(--surface);
             border-bottom: 1px solid var(--border);
             padding: 12px 16px;
+            flex-shrink: 0;
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
         }
 
         .drawer-title {
             color: var(--text-muted);
-            margin-bottom: 8px;
+        }
+
+        .action-specs {
+            color: var(--accent);
+            cursor: pointer;
+            text-decoration: underline;
         }
 
         .agent-scroll-grid {
@@ -314,7 +332,7 @@
 
         .agent-node-card.planned {
             border-color: var(--border);
-            opacity: 0.6;
+            opacity: 0.5;
         }
 
         .agent-name {
@@ -389,6 +407,7 @@
             display: flex;
             gap: 8px;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .command-field {
@@ -424,12 +443,227 @@
             background-color: var(--accent);
             color: var(--bg);
         }
+
+        /* BOTTOM NAVIGATION BAR */
+        .global-tab-nav {
+            background-color: var(--surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            height: 56px;
+            flex-shrink: 0;
+        }
+
+        .tab-nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 9px;
+            font-weight: 500;
+            gap: 4px;
+            border-right: 1px solid var(--border);
+        }
+
+        .tab-nav-item:last-child {
+            border-right: none;
+        }
+
+        .tab-nav-item.active {
+            color: var(--accent);
+            background-color: var(--accent-faint);
+        }
+
+        .tab-icon {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* 3. AGENT PROFILE VIEW */
+        .profile-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: var(--bg);
+        }
+
+        .profile-card-hero {
+            border: 1px solid var(--border-mid);
+            background-color: var(--surface);
+            padding: 24px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .profile-card-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 100%;
+            background-color: var(--accent);
+        }
+
+        .profile-agent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .profile-agent-title h2 {
+            font-family: var(--font-sans);
+            font-weight: 300;
+            font-size: 24px;
+            letter-spacing: 0.08em;
+            color: var(--text-primary);
+        }
+
+        .profile-agent-badge {
+            background-color: var(--accent-faint);
+            border: 1px solid var(--accent);
+            padding: 3px 8px;
+            color: var(--accent);
+        }
+
+        .profile-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .detail-cell {
+            border-bottom: 1px solid var(--border-mid);
+            padding-bottom: 8px;
+        }
+
+        .detail-cell-label {
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .detail-cell-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .profile-description-box {
+            background-color: var(--bg);
+            border: 1px solid var(--border);
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .profile-description-box p {
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .profile-action-btn {
+            display: block;
+            width: 100%;
+            background-color: var(--accent-faint);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 14px;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            margin-bottom: 12px;
+        }
+
+        .profile-action-btn:active {
+            background-color: var(--accent);
+            color: var(--bg);
+        }
+
+        /* 4. CLUSTER SETTINGS VIEW */
+        .settings-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .settings-header {
+            margin-bottom: 24px;
+        }
+
+        .settings-title {
+            font-family: var(--font-sans);
+            font-weight: 300;
+            font-size: 20px;
+            letter-spacing: 0.08em;
+            color: var(--text-primary);
+        }
+
+        .settings-section-card {
+            border: 1px solid var(--border-mid);
+            background-color: var(--surface);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .settings-section-title {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 6px;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+
+        .setting-row-label {
+            font-weight: 500;
+        }
+
+        .setting-row-desc {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .setting-toggle-btn {
+            background: none;
+            border: 1px solid var(--border-bright);
+            color: var(--text-primary);
+            padding: 6px 14px;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .setting-toggle-btn.on {
+            background-color: var(--accent-faint);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
     </style>
 </head>
 <body>
 
-    <!-- 1. PRE-AUTH VERIFICATION GATE -->
-    <div id="auth-screen">
+    <!-- 1. PRE-AUTH VERIFICATION GATE VIEW -->
+    <div id="auth-screen" class="view-pane active-view">
         <div class="auth-header">
             <div class="mono auth-subtitle">ROMEL // GATEWAY ACCESS</div>
             <h1 class="auth-title">MOBILE COMMAND PORT</h1>
@@ -467,57 +701,213 @@
         </div>
     </div>
 
-    <!-- 2. MAIN TERMINAL CONSOLE -->
-    <header class="app-header">
-        <div class="system-status">
-            <div class="status-dot"></div>
-            <span class="mono system-id">ROMEL // CLUSTER_C3</span>
-        </div>
-        <div class="mono" style="color: var(--text-muted);">SECURE_LINK // ON</div>
-    </header>
-
-    <!-- ACTIVE SIGNAL CANVAS (CONCEPT 3 HERO WAVEFORM) -->
-    <section class="waveform-section">
-        <canvas id="wave-canvas"></canvas>
-        
-        <div class="waveform-header">
-            <div class="mono active-agent-banner" id="wave-agent-banner">NODE // REEVE</div>
-            <div class="mono telemetry-ticker">
-                SIGNAL: SECURE<br>
-                SENS: STABLE
+    <!-- 2. MAIN TERMINAL CONSOLE VIEW -->
+    <div id="console-view" class="view-pane">
+        <header class="app-header">
+            <div class="system-status">
+                <div class="status-dot"></div>
+                <span class="mono system-id">ROMEL // CLUSTER_C3</span>
             </div>
-        </div>
+            <div class="mono" style="color: var(--text-muted);">SECURE_LINK // ON</div>
+        </header>
 
-        <div class="waveform-footer">
-            <div class="mono wave-freq-readout" id="freq-spec">FREQ // 23.40 GHz</div>
-            <div class="mono" style="color: var(--text-muted);">VOLTAGE: 1.42V</div>
-        </div>
-    </section>
+        <!-- ACTIVE SIGNAL CANVAS (CONCEPT 3 HERO WAVEFORM) -->
+        <section class="waveform-section">
+            <canvas id="wave-canvas"></canvas>
+            
+            <div class="waveform-header">
+                <div class="mono active-agent-banner" id="wave-agent-banner">NODE // REEVE</div>
+                <div class="mono telemetry-ticker">
+                    SIGNAL: SECURE<br>
+                    SENS: STABLE
+                </div>
+            </div>
 
-    <!-- AGENT DRAWER SYSTEM -->
-    <section class="agent-drawer">
-        <div class="mono drawer-title">SELECT ACTIVE CLUSTER NODE</div>
-        <div class="agent-scroll-grid" id="agent-grid">
-            <!-- Dynamically populated roster -->
-        </div>
-    </section>
+            <div class="waveform-footer">
+                <div class="mono wave-freq-readout" id="freq-spec">FREQ // 23.40 GHz</div>
+                <div class="mono" style="color: var(--text-muted);">VOLTAGE: 1.42V</div>
+            </div>
+        </section>
 
-    <!-- TERMINAL COMMUNICATIONS LOG -->
-    <section class="terminal-log-section" id="terminal-logs">
-        <!-- Dyn log entries -->
-    </section>
+        <!-- AGENT DRAWER SYSTEM -->
+        <section class="agent-drawer">
+            <div class="drawer-header">
+                <div class="mono drawer-title">SELECT ACTIVE CLUSTER NODE</div>
+                <div class="mono action-specs" onclick="switchToView('profile-view')">DETAILS &rarr;</div>
+            </div>
+            <div class="agent-scroll-grid" id="agent-grid">
+                <!-- Dynamically populated roster -->
+            </div>
+        </section>
 
-    <!-- COMMAND INPUT PANEL -->
-    <footer class="command-input-container">
-        <input type="text" class="command-field" id="cmd-input" placeholder="ENTER PROTOCOL..." autocomplete="off" onkeydown="if(event.key === 'Enter') dispatchCommand()">
-        <button class="command-send-btn mono" onclick="dispatchCommand()">SEND</button>
-    </footer>
+        <!-- TERMINAL COMMUNICATIONS LOG -->
+        <section class="terminal-log-section" id="terminal-logs">
+            <!-- Dyn log entries -->
+        </section>
+
+        <!-- COMMAND INPUT PANEL -->
+        <footer class="command-input-container">
+            <input type="text" class="command-field" id="cmd-input" placeholder="ENTER PROTOCOL..." autocomplete="off" onkeydown="if(event.key === 'Enter') dispatchCommand()">
+            <button class="command-send-btn mono" onclick="dispatchCommand()">SEND</button>
+        </footer>
+
+        <!-- BOTTOM NAV TAB -->
+        <nav class="global-tab-nav">
+            <div class="tab-nav-item active" onclick="switchToView('console-view')">
+                <span class="tab-icon">[_]</span>
+                <span class="mono">Console</span>
+            </div>
+            <div class="tab-nav-item" onclick="switchToView('profile-view')">
+                <span class="tab-icon">[o]</span>
+                <span class="mono">Node Profile</span>
+            </div>
+            <div class="tab-nav-item" onclick="switchToView('settings-view')">
+                <span class="tab-icon">[x]</span>
+                <span class="mono">Cluster Settings</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 3. AGENT PROFILE DETAIL VIEW -->
+    <div id="profile-view" class="view-pane">
+        <header class="app-header">
+            <div class="system-status">
+                <div class="status-dot"></div>
+                <span class="mono system-id">ROMEL // NODE SPECIFICATION</span>
+            </div>
+            <div class="mono" style="color: var(--accent);" onclick="switchToView('console-view')">BACK &larr;</div>
+        </header>
+
+        <section class="profile-container">
+            <div class="profile-card-hero">
+                <div class="profile-agent-header">
+                    <div class="profile-agent-title">
+                        <h2 id="prof-name">REEVE</h2>
+                        <div class="mono" id="prof-role-sub" style="color: var(--text-secondary); margin-top: 4px;">Security / access</div>
+                    </div>
+                    <span class="mono profile-agent-badge" id="prof-status-badge">NODE LIVE</span>
+                </div>
+
+                <div class="profile-detail-grid">
+                    <div class="detail-cell">
+                        <div class="mono detail-cell-label">NODE HOST</div>
+                        <div class="mono detail-cell-value" id="prof-host">LOCAL_CLUSTER</div>
+                    </div>
+                    <div class="detail-cell">
+                        <div class="mono detail-cell-value">SECURE_SHA256</div>
+                        <div class="mono detail-cell-value" id="prof-token">A74E9...</div>
+                    </div>
+                    <div class="detail-cell">
+                        <div class="mono detail-cell-label">LATENCY</div>
+                        <div class="mono detail-cell-value">12ms (FAST)</div>
+                    </div>
+                    <div class="detail-cell">
+                        <div class="mono detail-cell-label">CLEARANCE LEVEL</div>
+                        <div class="mono detail-cell-value" id="prof-clearance">V5 SECRET</div>
+                    </div>
+                </div>
+
+                <div class="profile-description-box">
+                    <div class="mono" style="color: var(--text-muted); margin-bottom: 8px;">OPERATIONAL SUMMARY</div>
+                    <p id="prof-description">Handles all core satellite security grids, password gates, and node permission allocations.</p>
+                </div>
+
+                <button class="profile-action-btn" onclick="testHandshake()">TRIGGER HANDSHAKE TEST</button>
+                <button class="profile-action-btn" onclick="disengageNode()" style="border-color: var(--text-muted); color: var(--text-muted); background: none;">DISENGAGE NODE LINK</button>
+            </div>
+        </section>
+
+        <!-- BOTTOM NAV TAB -->
+        <nav class="global-tab-nav">
+            <div class="tab-nav-item" onclick="switchToView('console-view')">
+                <span class="tab-icon">[_]</span>
+                <span class="mono">Console</span>
+            </div>
+            <div class="tab-nav-item active" onclick="switchToView('profile-view')">
+                <span class="tab-icon">[o]</span>
+                <span class="mono">Node Profile</span>
+            </div>
+            <div class="tab-nav-item" onclick="switchToView('settings-view')">
+                <span class="tab-icon">[x]</span>
+                <span class="mono">Cluster Settings</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 4. CLUSTER SETTINGS VIEW -->
+    <div id="settings-view" class="view-pane">
+        <header class="app-header">
+            <div class="system-status">
+                <div class="status-dot"></div>
+                <span class="mono system-id">ROMEL // SETTINGS</span>
+            </div>
+            <div class="mono" style="color: var(--text-muted);">V1.1_STABLE</div>
+        </header>
+
+        <section class="settings-container">
+            <div class="settings-header">
+                <h1 class="settings-title">CLUSTER PREFERENCES</h1>
+            </div>
+
+            <div class="settings-section-card">
+                <div class="mono settings-section-title">HAPTIC AUDIO SYNTESIZER</div>
+                <div class="setting-row">
+                    <div>
+                        <div class="setting-row-label">System Clicks & Sweeps</div>
+                        <div class="setting-row-desc">Generate low-latency sine wave feedback bleeps.</div>
+                    </div>
+                    <button class="setting-toggle-btn on" id="toggle-audio-btn" onclick="toggleAudio()">ON</button>
+                </div>
+            </div>
+
+            <div class="settings-section-card">
+                <div class="mono settings-section-title">WAVEFORM MODULATION</div>
+                <div class="setting-row">
+                    <div>
+                        <div class="setting-row-label">High-fidelity Canvas Rendering</div>
+                        <div class="setting-row-desc">Renders triple superimposed active vectors.</div>
+                    </div>
+                    <button class="setting-toggle-btn on" id="toggle-wave-btn" onclick="toggleWave()">ON</button>
+                </div>
+            </div>
+
+            <div class="settings-section-card">
+                <div class="mono settings-section-title">SECURITY GATEWAY</div>
+                <div class="setting-row">
+                    <div>
+                        <div class="setting-row-label">Lock Portal on Close</div>
+                        <div class="setting-row-desc">Force pin verification upon screen wake or reload.</div>
+                    </div>
+                    <button class="setting-toggle-btn" onclick="alert('GATEWAY POLICY PRE-LOCKED ON PORT')">LOCKED</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- BOTTOM NAV TAB -->
+        <nav class="global-tab-nav">
+            <div class="tab-nav-item" onclick="switchToView('console-view')">
+                <span class="tab-icon">[_]</span>
+                <span class="mono">Console</span>
+            </div>
+            <div class="tab-nav-item" onclick="switchToView('profile-view')">
+                <span class="tab-icon">[o]</span>
+                <span class="mono">Node Profile</span>
+            </div>
+            <div class="tab-nav-item active" onclick="switchToView('settings-view')">
+                <span class="tab-icon">[x]</span>
+                <span class="mono">Cluster Settings</span>
+            </div>
+        </nav>
+    </div>
 
     <script>
         // Synthesizer Audio Context
         let audioCtx = null;
+        let audioEnabled = true;
+        let waveEnabled = true;
 
         function playSynthTone(freq, duration, type = 'sine', gainVal = 0.04) {
+            if (!audioEnabled) return;
             try {
                 if (!audioCtx) {
                     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -541,6 +931,33 @@
                 osc.stop(audioCtx.currentTime + duration);
             } catch (e) {
                 console.error("Synth error", e);
+            }
+        }
+
+        // Toggle Settings
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const btn = document.getElementById('toggle-audio-btn');
+            if (audioEnabled) {
+                btn.innerText = "ON";
+                btn.classList.add('on');
+                playSynthTone(1200, 0.1);
+            } else {
+                btn.innerText = "OFF";
+                btn.classList.remove('on');
+            }
+        }
+
+        function toggleWave() {
+            waveEnabled = !waveEnabled;
+            const btn = document.getElementById('toggle-wave-btn');
+            if (waveEnabled) {
+                btn.innerText = "ON";
+                btn.classList.add('on');
+                playSynthTone(1200, 0.1);
+            } else {
+                btn.innerText = "OFF";
+                btn.classList.remove('on');
             }
         }
 
@@ -577,10 +994,12 @@
         }
 
         function verifyPin() {
-            if (pin === correctPin || pin === "0000") { // 0000 backdoor for easy review
+            if (pin === correctPin || pin === "0000") { // 0000 backdoor
                 playSynthTone(1800, 0.1, 'sine', 0.06);
                 setTimeout(() => playSynthTone(2400, 0.15, 'sine', 0.06), 80);
-                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('auth-screen').classList.remove('active-view');
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('console-view').classList.add('active-view');
                 addLogLine("REEVE", "AUTHORIZATION SUCCESSFUL. HOST CLEARANCE SECURE.");
                 addLogLine("SYSTEM", "STABLE SATELLITE LINK COMPLETED.", true);
             } else {
@@ -591,18 +1010,46 @@
             }
         }
 
+        // VIEW PORT STACK NAVIGATION
+        function switchToView(viewId) {
+            playSynthTone(900, 0.04, 'sine', 0.03);
+            
+            // Hide all views except auth unless authenticated
+            if (pin !== correctPin && pin !== "0000") {
+                return;
+            }
+
+            document.querySelectorAll('.view-pane').forEach(pane => {
+                pane.classList.remove('active-view');
+            });
+
+            document.getElementById(viewId).classList.add('active-view');
+            
+            // Update active state in bottom navigation elements
+            document.querySelectorAll('.tab-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Highlight respective navigation item based on viewId
+            let targetIdx = 0;
+            if (viewId === 'profile-view') targetIdx = 1;
+            if (viewId === 'settings-view') targetIdx = 2;
+            
+            document.querySelectorAll('.tab-nav-item')[targetIdx].classList.add('active');
+        }
+
         // 2. ROSTER SCHEMATIC DATA
         const roster = [
-            { id: "atlas", name: "Atlas", role: "Orchestration", state: "planned" },
-            { id: "grace", name: "Grace", role: "Comms / email", state: "live" },
-            { id: "noah", name: "Noah", role: "Ideas / capture", state: "live" },
-            { id: "mia", name: "Mia", role: "Design / interface", state: "live" },
-            { id: "tom", name: "Tom", role: "Engineering / build", state: "live" },
-            { id: "felix", name: "Felix", role: "Review / verification", state: "live" },
-            { id: "david", name: "David", role: "Finance / money", state: "planned" },
-            { id: "iris", name: "Iris", role: "Oversight", state: "planned" },
-            { id: "reeve", name: "Reeve", role: "Security / access", state: "live" },
-            { id: "bayle", name: "Dr. Bayle", role: "TO CONFIRM", state: "planned" }
+            { id: "atlas", name: "Atlas", role: "Orchestration", state: "planned", description: "Routes core pipeline operations, handoffs, and resource provisions across active agent channels." },
+            { id: "grace", name: "Grace", role: "Comms / email", state: "live", description: "Automates secure inbox handling and emails, writing in Romel's accurate voice." },
+            { id: "noah", name: "Noah", role: "Ideas / capture", state: "live", description: "Securely captures and processes raw ideas; the only node with clearance to access the private vault." },
+            { id: "mia", name: "Mia", role: "Design / interface", state: "live", description: "Directs interface architecture, aesthetic design tokens, and live-prototype compiles." },
+            { id: "tom", name: "Tom", role: "Engineering / build", state: "live", description: "Compiles prototypes into clean, highly optimized production layouts." },
+            { id: "felix", name: "Felix", role: "Review / verification", state: "live", description: "Runs verification systems to ensure compiled builds match exact creative parameters." },
+            { id: "david", name: "David", role: "Finance / money", state: "planned", description: "Planned financial ledger monitoring and allocation algorithms." },
+            { id: "iris", name: "Iris", role: "Oversight", state: "planned", description: "Planned high-level oversight and telemetry auditing core cluster loops." },
+            { id: "reeve", name: "Reeve", role: "Security / access", state: "live", description: "Performs verification gates, perimeter scans, encryption checks, and port monitors." },
+            { id: "bayle", name: "Dr. Bayle", role: "TO CONFIRM", state: "planned", description: "Cluster role verification is currently pending core administrative sign-off." }
         ];
 
         let activeAgent = roster.find(r => r.id === "reeve");
@@ -626,6 +1073,7 @@
                 `;
                 grid.appendChild(card);
             });
+            updateProfileView();
         }
 
         function selectAgent(agent) {
@@ -662,6 +1110,28 @@
                     waveAmplitude = 25;
                 }
             }, 400);
+        }
+
+        function updateProfileView() {
+            document.getElementById('prof-name').innerText = activeAgent.name.toUpperCase();
+            document.getElementById('prof-role-sub').innerText = activeAgent.role;
+            document.getElementById('prof-description').innerText = activeAgent.description;
+            document.getElementById('prof-status-badge').innerText = activeAgent.state === 'live' ? 'NODE LIVE' : 'NODE PLANNED';
+            document.getElementById('prof-clearance').innerText = activeAgent.state === 'live' ? 'V5 SECRET' : 'RESTRICTED';
+            document.getElementById('prof-host').innerText = activeAgent.state === 'live' ? 'LOCAL_CLUSTER' : 'ROADMAP_CORE';
+            document.getElementById('prof-token').innerText = `A${Math.floor(Math.random() * 10)}4E${Math.floor(Math.random() * 10)}...`;
+        }
+
+        // Active node interactions
+        function testHandshake() {
+            playSynthTone(1800, 0.05, 'triangle', 0.06);
+            setTimeout(() => playSynthTone(2200, 0.1, 'triangle', 0.05), 50);
+            alert(`HANDSHAKE VERIFIED FOR NODE [${activeAgent.name.toUpperCase()}] // STABLE CONNECTIVITY`);
+        }
+
+        function disengageNode() {
+            playSynthTone(400, 0.2, 'sawtooth', 0.08);
+            alert(`SATELLITE LINK DISENGAGED FOR [${activeAgent.name.toUpperCase()}]`);
         }
 
         // 3. LOGGING CONTROLLER
@@ -743,6 +1213,12 @@
         resizeCanvas();
 
         function drawWave() {
+            if (!waveEnabled) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                requestAnimationFrame(drawWave);
+                return;
+            }
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             const w = canvas.width / window.devicePixelRatio;
