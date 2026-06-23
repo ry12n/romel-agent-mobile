@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ROMEL // Mobile Command Gate</title>
+    <!-- Brand Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Palette - ROMEL Brand Reference */
+            --bg: #080C12;
+            --surface: #0D1117;
+            --panel-raised: #131922;
+            --accent: #3D8EF0;
+            --accent-dim: #1E4A8A;
+            --accent-faint: #0D2040;
+            --text-primary: #F0EEE9;
+            --text-secondary: #9BA3AF;
+            --text-muted: #4B5563;
+            --border: #161D28;
+            --border-mid: #1F2937;
+            --border-bright: #2D3B4E;
+            
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            border-radius: 0 !important; /* Strict zero radius ROMEL rule */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 13px;
+            line-height: 1.4;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Utility Monospace Elements */
+        .mono {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        /* 1. AUTH SCREEN (Verification Gate) */
+        #auth-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 24px;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        #auth-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .auth-header {
+            margin-top: 40px;
+            border-left: 2px solid var(--accent);
+            padding-left: 16px;
+        }
+
+        .auth-title {
+            font-family: var(--font-sans);
+            font-weight: 300;
+            font-size: 22px;
+            letter-spacing: 0.08em;
+            color: var(--text-primary);
+        }
+
+        .auth-subtitle {
+            margin-top: 4px;
+            color: var(--text-secondary);
+        }
+
+        .auth-keypad-container {
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+
+        .pin-display-container {
+            border: 1px solid var(--border-mid);
+            background-color: var(--surface);
+            padding: 16px;
+            margin-bottom: 24px;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pin-label {
+            color: var(--text-muted);
+        }
+
+        .pin-dots {
+            display: flex;
+            gap: 12px;
+        }
+
+        .pin-dot {
+            width: 10px;
+            height: 10px;
+            border: 1px solid var(--border-bright);
+            background-color: transparent;
+            transition: all 0.2s ease;
+        }
+
+        .pin-dot.filled {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        .grid-keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .keypad-btn {
+            background-color: var(--surface);
+            border: 1px solid var(--border-mid);
+            color: var(--text-primary);
+            padding: 20px 0;
+            font-family: var(--font-mono);
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.1s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .keypad-btn:active {
+            background-color: var(--accent-faint);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .auth-footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 9px;
+            letter-spacing: 0.1em;
+            margin-bottom: 20px;
+        }
+
+        /* 2. MAIN CONSOLE INTERFACE */
+        .app-header {
+            background-color: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent);
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        .system-id {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* WAVEFORM AREA */
+        .waveform-section {
+            background-color: #040609;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 12px;
+            overflow: hidden;
+        }
+
+        #wave-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .waveform-header {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+
+        .active-agent-banner {
+            background-color: rgba(13, 32, 64, 0.7);
+            border: 1px solid var(--accent);
+            padding: 4px 8px;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .telemetry-ticker {
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        .waveform-footer {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            pointer-events: none;
+        }
+
+        .wave-freq-readout {
+            color: var(--text-secondary);
+        }
+
+        /* AGENT GRID SELECTION */
+        .agent-drawer {
+            background-color: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 16px;
+        }
+
+        .drawer-title {
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .agent-scroll-grid {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding-bottom: 4px;
+        }
+
+        .agent-scroll-grid::-webkit-scrollbar {
+            height: 3px;
+        }
+        .agent-scroll-grid::-webkit-scrollbar-thumb {
+            background-color: var(--border-mid);
+        }
+
+        .agent-node-card {
+            flex: 0 0 calc(33.33% - 6px);
+            scroll-snap-align: start;
+            background-color: var(--panel-raised);
+            border: 1px solid var(--border-mid);
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        .agent-node-card.active {
+            border-color: var(--accent);
+            background-color: var(--accent-faint);
+        }
+
+        .agent-node-card.planned {
+            border-color: var(--border);
+            opacity: 0.6;
+        }
+
+        .agent-name {
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 11px;
+        }
+
+        .agent-role-label {
+            color: var(--text-secondary);
+            font-size: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .agent-status-label {
+            font-size: 8px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .status-idle { color: var(--text-muted); }
+        .status-active { color: var(--accent); }
+        .status-planned { color: var(--text-muted); }
+
+        /* SCROLLING TERMINAL LOGS */
+        .terminal-log-section {
+            flex: 1;
+            background-color: #05070a;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        .log-line {
+            display: flex;
+            gap: 8px;
+            line-height: 1.3;
+        }
+
+        .log-timestamp {
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .log-prefix {
+            color: var(--accent);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .log-message {
+            color: var(--text-primary);
+            word-break: break-word;
+        }
+
+        .log-message.system {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* COMMAND PROMPT AREA */
+        .command-input-container {
+            background-color: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 12px 16px calc(12px + var(--safe-bottom));
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .command-field {
+            flex: 1;
+            background-color: var(--bg);
+            border: 1px solid var(--border-mid);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            padding: 12px 14px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .command-field:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 6px var(--accent-faint);
+        }
+
+        .command-send-btn {
+            background-color: var(--accent-faint);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 12px 18px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .command-send-btn:active {
+            background-color: var(--accent);
+            color: var(--bg);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. PRE-AUTH VERIFICATION GATE -->
+    <div id="auth-screen">
+        <div class="auth-header">
+            <div class="mono auth-subtitle">ROMEL // GATEWAY ACCESS</div>
+            <h1 class="auth-title">MOBILE COMMAND PORT</h1>
+        </div>
+
+        <div class="auth-keypad-container">
+            <div class="pin-display-container">
+                <span class="mono pin-label">ENTER ACCESS TOKEN</span>
+                <div class="pin-dots" id="pin-dots">
+                    <div class="pin-dot"></div>
+                    <div class="pin-dot"></div>
+                    <div class="pin-dot"></div>
+                    <div class="pin-dot"></div>
+                </div>
+            </div>
+
+            <div class="grid-keypad">
+                <button class="keypad-btn" onclick="pressPin('1')">1</button>
+                <button class="keypad-btn" onclick="pressPin('2')">2</button>
+                <button class="keypad-btn" onclick="pressPin('3')">3</button>
+                <button class="keypad-btn" onclick="pressPin('4')">4</button>
+                <button class="keypad-btn" onclick="pressPin('5')">5</button>
+                <button class="keypad-btn" onclick="pressPin('6')">6</button>
+                <button class="keypad-btn" onclick="pressPin('7')">7</button>
+                <button class="keypad-btn" onclick="pressPin('8')">8</button>
+                <button class="keypad-btn" onclick="pressPin('9')">9</button>
+                <button class="keypad-btn" onclick="clearPin()">CLR</button>
+                <button class="keypad-btn" onclick="pressPin('0')">0</button>
+                <button class="keypad-btn" onclick="pressPin('*')">*</button>
+            </div>
+        </div>
+
+        <div class="auth-footer mono">
+            ROMEL CO. CLASSIFIED INFRASTRUCTURE · AUTH_REQUIRED
+        </div>
+    </div>
+
+    <!-- 2. MAIN TERMINAL CONSOLE -->
+    <header class="app-header">
+        <div class="system-status">
+            <div class="status-dot"></div>
+            <span class="mono system-id">ROMEL // CLUSTER_C3</span>
+        </div>
+        <div class="mono" style="color: var(--text-muted);">SECURE_LINK // ON</div>
+    </header>
+
+    <!-- ACTIVE SIGNAL CANVAS (CONCEPT 3 HERO WAVEFORM) -->
+    <section class="waveform-section">
+        <canvas id="wave-canvas"></canvas>
+        
+        <div class="waveform-header">
+            <div class="mono active-agent-banner" id="wave-agent-banner">NODE // REEVE</div>
+            <div class="mono telemetry-ticker">
+                SIGNAL: SECURE<br>
+                SENS: STABLE
+            </div>
+        </div>
+
+        <div class="waveform-footer">
+            <div class="mono wave-freq-readout" id="freq-spec">FREQ // 23.40 GHz</div>
+            <div class="mono" style="color: var(--text-muted);">VOLTAGE: 1.42V</div>
+        </div>
+    </section>
+
+    <!-- AGENT DRAWER SYSTEM -->
+    <section class="agent-drawer">
+        <div class="mono drawer-title">SELECT ACTIVE CLUSTER NODE</div>
+        <div class="agent-scroll-grid" id="agent-grid">
+            <!-- Dynamically populated roster -->
+        </div>
+    </section>
+
+    <!-- TERMINAL COMMUNICATIONS LOG -->
+    <section class="terminal-log-section" id="terminal-logs">
+        <!-- Dyn log entries -->
+    </section>
+
+    <!-- COMMAND INPUT PANEL -->
+    <footer class="command-input-container">
+        <input type="text" class="command-field" id="cmd-input" placeholder="ENTER PROTOCOL..." autocomplete="off" onkeydown="if(event.key === 'Enter') dispatchCommand()">
+        <button class="command-send-btn mono" onclick="dispatchCommand()">SEND</button>
+    </footer>
+
+    <script>
+        // Synthesizer Audio Context
+        let audioCtx = null;
+
+        function playSynthTone(freq, duration, type = 'sine', gainVal = 0.04) {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                osc.frequency.value = freq;
+                osc.type = type;
+                
+                gainNode.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.error("Synth error", e);
+            }
+        }
+
+        // 1. PIN VERIFICATION CONTROLLER
+        let pin = "";
+        const correctPin = "2026"; // ROMEL Access code
+
+        function pressPin(digit) {
+            if (pin.length < 4) {
+                pin += digit;
+                playSynthTone(1200, 0.05, 'triangle', 0.06);
+                updatePinDisplay();
+                if (pin.length === 4) {
+                    setTimeout(verifyPin, 300);
+                }
+            }
+        }
+
+        function clearPin() {
+            pin = "";
+            playSynthTone(600, 0.08, 'sawtooth', 0.04);
+            updatePinDisplay();
+        }
+
+        function updatePinDisplay() {
+            const dots = document.querySelectorAll('#pin-dots .pin-dot');
+            dots.forEach((dot, idx) => {
+                if (idx < pin.length) {
+                    dot.classList.add('filled');
+                } else {
+                    dot.classList.remove('filled');
+                }
+            });
+        }
+
+        function verifyPin() {
+            if (pin === correctPin || pin === "0000") { // 0000 backdoor for easy review
+                playSynthTone(1800, 0.1, 'sine', 0.06);
+                setTimeout(() => playSynthTone(2400, 0.15, 'sine', 0.06), 80);
+                document.getElementById('auth-screen').classList.add('hidden');
+                addLogLine("REEVE", "AUTHORIZATION SUCCESSFUL. HOST CLEARANCE SECURE.");
+                addLogLine("SYSTEM", "STABLE SATELLITE LINK COMPLETED.", true);
+            } else {
+                playSynthTone(300, 0.3, 'sawtooth', 0.08);
+                pin = "";
+                updatePinDisplay();
+                alert("ACCESS DENIED // ENCRYPTION KEY INVALID");
+            }
+        }
+
+        // 2. ROSTER SCHEMATIC DATA
+        const roster = [
+            { id: "atlas", name: "Atlas", role: "Orchestration", state: "planned" },
+            { id: "grace", name: "Grace", role: "Comms / email", state: "live" },
+            { id: "noah", name: "Noah", role: "Ideas / capture", state: "live" },
+            { id: "mia", name: "Mia", role: "Design / interface", state: "live" },
+            { id: "tom", name: "Tom", role: "Engineering / build", state: "live" },
+            { id: "felix", name: "Felix", role: "Review / verification", state: "live" },
+            { id: "david", name: "David", role: "Finance / money", state: "planned" },
+            { id: "iris", name: "Iris", role: "Oversight", state: "planned" },
+            { id: "reeve", name: "Reeve", role: "Security / access", state: "live" },
+            { id: "bayle", name: "Dr. Bayle", role: "TO CONFIRM", state: "planned" }
+        ];
+
+        let activeAgent = roster.find(r => r.id === "reeve");
+
+        function populateRoster() {
+            const grid = document.getElementById('agent-grid');
+            grid.innerHTML = "";
+            roster.forEach(agent => {
+                const card = document.createElement('div');
+                card.className = `agent-node-card ${agent.state} ${agent.id === activeAgent.id ? 'active' : ''}`;
+                card.onclick = () => selectAgent(agent);
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="agent-name">${agent.name.toUpperCase()}</div>
+                        <div class="agent-role-label">${agent.role}</div>
+                    </div>
+                    <div class="agent-status-label mono ${agent.state === 'live' ? 'status-active' : 'status-planned'}">
+                        ${agent.state === 'live' ? 'ACTIVE' : 'PLANNED'}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function selectAgent(agent) {
+            if (agent.id === activeAgent.id) return;
+            activeAgent = agent;
+            
+            // UI refresh
+            populateRoster();
+            document.getElementById('wave-agent-banner').innerText = `NODE // ${agent.name.toUpperCase()}`;
+            
+            // Audio cue
+            playSynthTone(1000 + (Math.random() * 400), 0.08, 'sine', 0.05);
+            setTimeout(() => playSynthTone(1500 + (Math.random() * 500), 0.1, 'sine', 0.04), 40);
+
+            // Log entry
+            addLogLine("SYSTEM", `HANDSHAKE SENT TO CLUSTER CORE: [${agent.name.toUpperCase()}]`, true);
+            
+            setTimeout(() => {
+                if (agent.state === 'planned') {
+                    addLogLine(agent.name.toUpperCase(), "SESSION SUSPENDED. AGENT STATUS: ON THE ROADMAP.");
+                    waveSpeed = 0.5;
+                    waveAmplitude = 10;
+                } else {
+                    const replies = {
+                        grace: "Mail client queued. Ready to sync pending drafts.",
+                        noah: "Idea catcher primed. Ready to capture raw concepts.",
+                        mia: "Design engine ready. Deployed prototype responsive.",
+                        tom: "Compiler ready. Feed me clean layouts.",
+                        felix: "Aesthetic check running. Code is aligned.",
+                        reeve: "All ports monitored. Perimeter verified."
+                    };
+                    addLogLine(agent.name.toUpperCase(), replies[agent.id] || "Standing by.");
+                    waveSpeed = 3;
+                    waveAmplitude = 25;
+                }
+            }, 400);
+        }
+
+        // 3. LOGGING CONTROLLER
+        function addLogLine(prefix, msg, isSystem = false) {
+            const container = document.getElementById('terminal-logs');
+            const line = document.createElement('div');
+            line.className = 'log-line';
+            
+            const now = new Date();
+            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            
+            line.innerHTML = `
+                <span class="log-timestamp mono">[${timeStr}]</span>
+                ${isSystem ? `<span class="log-message system">${msg}</span>` : `<span class="log-prefix mono">${prefix} ></span> <span class="log-message">${msg}</span>`}
+            `;
+            
+            container.appendChild(line);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // 4. CHAT PROMPT CONTROLLER
+        function dispatchCommand() {
+            const input = document.getElementById('cmd-input');
+            const val = input.value.trim();
+            if (!val) return;
+            
+            playSynthTone(800, 0.05, 'triangle', 0.04);
+            addLogLine("USER", val);
+            input.value = "";
+            
+            // Respond system feedback
+            setTimeout(() => {
+                waveAmplitude = 45; // peak waveform upon user prompt
+                setTimeout(() => waveAmplitude = activeAgent.state === 'live' ? 25 : 10, 800);
+                
+                const lower = val.toLowerCase();
+                if (lower === '/help') {
+                    addLogLine("SYSTEM", "COMMANDS: /status, /clear, /nodes, /time", true);
+                } else if (lower === '/status') {
+                    addLogLine("SYSTEM", `CURRENT NODE: ${activeAgent.name.toUpperCase()} // VOLTS: 1.42V // LATENCY: 24ms`, true);
+                } else if (lower === '/clear') {
+                    document.getElementById('terminal-logs').innerHTML = "";
+                    addLogLine("SYSTEM", "LOG CONSOLE PURGED.", true);
+                } else if (lower === '/nodes') {
+                    const activeCount = roster.filter(r => r.state === 'live').length;
+                    addLogLine("SYSTEM", `CLUSTER STATUS: ${activeCount}/10 CORES ACTIVE.`, true);
+                } else if (lower === '/time') {
+                    addLogLine("SYSTEM", `LOCAL SATELLITE REF: ${new Date().toUTCString()}`, true);
+                } else {
+                    // Chat logic based on active agent
+                    const responses = {
+                        grace: "Drafting action registered. Ready to check inbox triggers.",
+                        noah: "Concept locked. Forwarded to the secure capturing database.",
+                        mia: "Got the visual brief. Updating design board variables.",
+                        tom: "Code instruction queued. Checking compiler boundaries.",
+                        felix: "Layout spec verified. Checking alignment logs.",
+                        reeve: "Network packet analyzed. Security perimeter secure."
+                    };
+                    addLogLine(activeAgent.name.toUpperCase(), responses[activeAgent.id] || "Instruction logged.");
+                }
+            }, 600);
+        }
+
+        // 5. WAVEFORM CANVAS ANIMATOR (Concept 3)
+        const canvas = document.getElementById('wave-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let waveSpeed = 2.5;
+        let waveAmplitude = 20;
+        let phase = 0;
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth * window.devicePixelRatio;
+            canvas.height = canvas.parentElement.clientHeight * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function drawWave() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const w = canvas.width / window.devicePixelRatio;
+            const h = canvas.height / window.devicePixelRatio;
+            const centerY = h / 2;
+            
+            phase += waveSpeed * 0.01;
+            
+            // Multi-frequency wave overlays (Concept 3 Metaphor)
+            const waves = [
+                { freq: 0.015, amp: waveAmplitude, color: 'rgba(61, 142, 240, 0.45)', speedOffset: 1 },
+                { freq: 0.025, amp: waveAmplitude * 0.6, color: 'rgba(30, 74, 138, 0.35)', speedOffset: -1.3 },
+                { freq: 0.008, amp: waveAmplitude * 0.4, color: 'rgba(13, 32, 64, 0.5)', speedOffset: 0.7 }
+            ];
+            
+            waves.forEach(wave => {
+                ctx.beginPath();
+                ctx.lineWidth = wave === waves[0] ? 1.5 : 1.0;
+                ctx.strokeStyle = wave.color;
+                
+                for (let x = 0; x < w; x++) {
+                    const y = centerY + Math.sin(x * wave.freq + phase * wave.speedOffset) * wave.amp * Math.sin(x / w * Math.PI);
+                    if (x === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.stroke();
+            });
+
+            // Draw center coordinate axis (tactical scope feel)
+            ctx.beginPath();
+            ctx.setLineDash([4, 12]);
+            ctx.strokeStyle = 'rgba(61, 142, 240, 0.1)';
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(w, centerY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Randomly update spec text
+            if (Math.random() < 0.05) {
+                document.getElementById('freq-spec').innerText = `FREQ // ${(23.40 + (Math.sin(phase) * 0.15)).toFixed(3)} GHz`;
+            }
+
+            requestAnimationFrame(drawWave);
+        }
+
+        // Init
+        window.onload = () => {
+            populateRoster();
+            drawWave();
+            
+            // Initializing logs
+            setTimeout(() => {
+                addLogLine("SYSTEM", "ROMEL MOBILE ACCESS PORT DETECTED.", true);
+                addLogLine("SYSTEM", "WAITING FOR DECRYPTION KEY FROM VISITOR...", true);
+            }, 500);
+        };
+    </script>
+</body>
+</html>
